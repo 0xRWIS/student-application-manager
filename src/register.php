@@ -1,4 +1,4 @@
-<?php include('./header.php'); ?>
+
 <?php 
 // 1. DATABASE & LOGIC FIRST
 include('./database.php'); 
