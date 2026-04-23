@@ -1,6 +1,22 @@
-<?php include('./header.php'); ?>
-<?php include('./database.php'); ?>
+<?php 
+include('./header.php'); 
+include('./database.php'); 
 
+
+try {
+    $stats = [
+        'total'    => $dbconnect->query("SELECT COUNT(*) FROM applications")->fetchColumn() ?: 0,
+        'pending'  => $dbconnect->query("SELECT COUNT(*) FROM applications WHERE status = 'pending'")->fetchColumn() ?: 0,
+        'approved' => $dbconnect->query("SELECT COUNT(*) FROM applications WHERE status = 'approved'")->fetchColumn() ?: 0,
+        'rejected' => $dbconnect->query("SELECT COUNT(*) FROM applications WHERE status = 'rejected'")->fetchColumn() ?: 0,
+    ];
+} catch (PDOException $e) {
+    $stats = ['total' => 0, 'pending' => 0, 'approved' => 0, 'rejected' => 0];
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,32 +47,19 @@
     </header>
 
     <nav class="px-10 bg-white border-b border-gray-200">
-    <div class="flex gap-10">
-        <?php 
-            $current_page = basename($_SERVER['PHP_SELF']); 
-        ?>
-
-        <?php if ($current_page == 'dashboard.php'): ?>
-            <div class="flex items-center gap-2 py-4 border-b-2 border-purple-600 text-purple-600 font-semibold text-sm cursor-default">
-                Student Applications
-            </div>
-        <?php else: ?>
-            <a href="dashboard.php" class="flex items-center gap-2 py-4 border-b-2 border-transparent text-gray-400 font-medium text-sm hover:text-gray-600 transition-all">
+        <div class="flex gap-10">
+            <?php $current_page = basename($_SERVER['PHP_SELF']); ?>
+            <a href="dashboard.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
                 Student Applications
             </a>
-        <?php endif; ?>
-
-        <?php if ($current_page == 'dashboard-manager.php'): ?>
-            <div class="flex items-center gap-2 py-4 border-b-2 border-purple-600 text-purple-600 font-semibold text-sm cursor-default">
-                Manage Programs
-            </div>
-        <?php else: ?>
-            <a href="dashboard-manager.php" class="flex items-center gap-2 py-4 border-b-2 border-transparent text-gray-400 font-medium text-sm hover:text-gray-600 transition-all">
+            <a href="dashboard-manager.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard-manager.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
                 Manage Programs
             </a>
-        <?php endif; ?>
-    </div>
-</nav>
+            <a href="dashboard-student-manager.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard-student-manager.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
+                Students Manager
+            </a>
+        </div>
+    </nav>
 
     <main class="px-10 py-8 space-y-8">
         
@@ -68,7 +71,7 @@
                     </div>
                     <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Applications</span>
                 </div>
-                <span class="text-4xl font-black text-gray-900">0</span>
+                <span class="text-4xl font-black text-gray-900"><?php echo $stats['total']; ?></span>
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-gray-100 flex items-center justify-between shadow-sm">
@@ -78,7 +81,7 @@
                     </div>
                     <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Pending Review</span>
                 </div>
-                <span class="text-4xl font-black text-gray-900">0</span>
+                <span class="text-4xl font-black text-gray-900"><?php echo $stats['pending']; ?></span>
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-gray-100 flex items-center justify-between shadow-sm">
@@ -88,7 +91,7 @@
                     </div>
                     <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Approved</span>
                 </div>
-                <span class="text-4xl font-black text-gray-900">0</span>
+                <span class="text-4xl font-black text-gray-900"><?php echo $stats['approved']; ?></span>
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-gray-100 flex items-center justify-between shadow-sm">
@@ -98,74 +101,71 @@
                     </div>
                     <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Rejected</span>
                 </div>
-                <span class="text-4xl font-black text-gray-900">0</span>
+                <span class="text-4xl font-black text-gray-900"><?php echo $stats['rejected']; ?></span>
             </div>
         </div>
-            
+
         <div class="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
             <div class="flex items-center gap-3 mb-8">
                 <div class="text-purple-600 bg-purple-50 p-2 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                 </div>
-            <h2 class="text-xl font-bold text-gray-900">Students by Department</h2>
-        </div>
-        
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-        <?php
-        // 1. Fetch department names from the database
-        try {
-            $stmtDept = $dbconnect->query("SELECT name FROM departments ORDER BY name ASC");
-            $deptList = $stmtDept->fetchAll();
+                <h2 class="text-xl font-bold text-gray-900">Students by Department</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                <?php
+                try {
+                    $query = "SELECT d.name, COUNT(u.id) as total_students 
+                            FROM departments d 
+                            LEFT JOIN users u ON d.id = u.department_id AND u.role = 'user'
+                            GROUP BY d.id ORDER BY d.name ASC";
+                    $deptList = $dbconnect->query($query)->fetchAll();
 
-            if (!empty($deptList)):
-                foreach ($deptList as $dept): ?>
-                    <div class="bg-purple-50/40 p-6 rounded-xl border border-purple-100/50 hover:bg-purple-50 transition-colors">
-                        <p class="text-3xl font-black text-purple-600">0</p>
-                        <p class="text-sm text-gray-600 mt-2 font-semibold">
-                            <?php echo htmlspecialchars($dept['name']); ?>
-                        </p>
-                    </div>
-                <?php endforeach;
-            else: ?>
-                <p class="text-gray-400 italic text-sm">No departments created yet.</p>
-            <?php endif;
-
-        } catch (PDOException $e) {
-            echo "<p class='text-red-500 text-xs'>Error: " . $e->getMessage() . "</p>";
-        }
-        ?>
-    </div>
-</div>
+                    if (!empty($deptList)):
+                        foreach ($deptList as $dept): ?>
+                            <div class="bg-purple-50/40 p-6 rounded-xl border border-purple-100/50 hover:bg-purple-50 transition-colors">
+                                <p class="text-3xl font-black text-purple-600"><?php echo $dept['total_students']; ?></p>
+                                <p class="text-sm text-gray-600 mt-2 font-semibold"><?php echo htmlspecialchars($dept['name']); ?></p>
+                            </div>
+                        <?php endforeach;
+                    else: ?>
+                        <p class="text-gray-400 italic text-sm">No departments created yet.</p>
+                    <?php endif;
+                } catch (PDOException $e) { echo "<p class='text-red-500'>Error loading departments.</p>"; }
+                ?>
+            </div>
         </div>
 
         <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
             <div class="p-8 border-b border-gray-50">
                 <h2 class="text-xl font-bold text-gray-900 mb-6">Application Management</h2>
                 
-                <div class="flex flex-wrap gap-3">
-                    <button class="px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-md shadow-blue-100">
-                        All (0)
+                <div class="flex flex-wrap gap-3" id="filter-buttons">
+                    <button data-filter="all" class="filter-btn px-5 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-md shadow-blue-100">
+                        All (<?php echo $stats['total']; ?>)
                     </button>
-                    <button class="px-5 py-2.5 bg-gray-50 text-gray-500 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200">
-                        Pending (0)
+                    <button data-filter="pending" class="filter-btn px-5 py-2.5 bg-gray-50 text-gray-500 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200">
+                        Pending (<?php echo $stats['pending']; ?>)
                     </button>
-                    <button class="px-5 py-2.5 bg-gray-50 text-gray-500 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200">
-                        Approved (0)
+                    <button data-filter="approved" class="filter-btn px-5 py-2.5 bg-gray-50 text-gray-500 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200">
+                        Approved (<?php echo $stats['approved']; ?>)
                     </button>
-                    <button class="px-5 py-2.5 bg-gray-50 text-gray-500 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200">
-                        Rejected (0)
+                    <button data-filter="rejected" class="filter-btn px-5 py-2.5 bg-gray-50 text-gray-500 text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200">
+                        Rejected (<?php echo $stats['rejected']; ?>)
                     </button>
                 </div>
             </div>
 
-            <div class="p-20 text-center flex flex-col items-center justify-center">
-                <div class="bg-gray-50 p-6 rounded-full mb-4">
-                    <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+            <div id="applications-container">
+                <div id="empty-state" class="p-20 text-center flex flex-col items-center justify-center">
+                    <div class="bg-gray-50 p-6 rounded-full mb-4">
+                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+                    </div>
+                    <p class="text-gray-400 font-medium italic">No application records found.</p>
                 </div>
-                <p class="text-gray-400 font-medium italic">No application records found.</p>
             </div>
         </div>
-
     </main>
 
     <div class="fixed bottom-6 right-6">
@@ -174,5 +174,38 @@
         </button>
     </div>
 
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('.filter-btn');
+        const rows = document.querySelectorAll('.app-row');
+        const emptyState = document.getElementById('empty-state');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-100');
+                    btn.classList.add('bg-gray-50', 'text-gray-500');
+                });
+                this.classList.add('bg-blue-600', 'text-white', 'shadow-md', 'shadow-blue-100');
+                this.classList.remove('bg-gray-50', 'text-gray-500');
+
+                let visibleCount = 0;
+                rows.forEach(row => {
+                    const status = row.getAttribute('data-status');
+                    if (filter === 'all' || status === filter) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                emptyState.style.display = (visibleCount === 0) ? 'flex' : 'none';
+            });
+        });
+    });
+    </script>
 </body>
 </html>

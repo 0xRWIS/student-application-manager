@@ -1,9 +1,9 @@
 <?php 
 include('./header.php'); 
-include('./database.php'); // Ensure this contains your $dbconnect variable
+include('./database.php'); 
 
 try {
-    // 1. Fetch all departments from the database
+    
     $stmt = $dbconnect->query("SELECT * FROM departments ORDER BY id DESC");
     $programs = $stmt->fetchAll();
 } catch (PDOException $e) {
@@ -41,18 +41,44 @@ try {
     </header>
 
     <nav class="px-10 bg-white border-b border-gray-200">
-        <div class="flex gap-10">
-            <?php $current_page = basename($_SERVER['PHP_SELF']); ?>
-            
-            <a href="dashboard.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
+    <div class="flex gap-10">
+        <?php 
+            $current_page = basename($_SERVER['PHP_SELF']); 
+        ?>
+
+        <?php if ($current_page == 'dashboard.php'): ?>
+            <div class="flex items-center gap-2 py-4 border-b-2 border-purple-600 text-purple-600 font-semibold text-sm cursor-default">
+                Student Applications
+            </div>
+        <?php else: ?>
+            <a href="dashboard.php" class="flex items-center gap-2 py-4 border-b-2 border-transparent text-gray-400 font-medium text-sm hover:text-gray-600 transition-all">
                 Student Applications
             </a>
+            
+            
+        <?php endif; ?>
 
-            <a href="dashboard-manager.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard-manager.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
+        <?php if ($current_page == 'dashboard-manager.php'): ?>
+            <div class="flex items-center gap-2 py-4 border-b-2 border-purple-600 text-purple-600 font-semibold text-sm cursor-default">
+                Manage Programs
+            </div>
+        <?php else: ?>
+            <a href="dashboard-manager.php" class="flex items-center gap-2 py-4 border-b-2 border-transparent text-gray-400 font-medium text-sm hover:text-gray-600 transition-all">
                 Manage Programs
             </a>
-        </div>
-    </nav>
+        <?php endif; ?>
+        
+            <?php if ($current_page == 'dashboard-student-manager.php'): ?>
+            <div class="flex items-center gap-2 py-4 border-b-2 border-purple-600 text-purple-600 font-semibold text-sm cursor-default">
+                Students Manager
+            </div>
+        <?php else: ?>
+            <a href="dashboard-student-manager.php" class="flex items-center gap-2 py-4 border-b-2 border-transparent text-gray-400 font-medium text-sm hover:text-gray-600 transition-all">
+                Students Manager
+            </a>
+        <?php endif; ?>
+    </div>
+</nav>
 
     <main class="px-10 py-8">
         <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
@@ -74,9 +100,16 @@ try {
                                 <div>
                                     <div class="flex items-center gap-3 mb-1">
                                         <h3 class="text-lg font-bold text-gray-900"><?php echo htmlspecialchars($program['name']); ?></h3>
-                                        <span class="px-2.5 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold rounded-full flex items-center gap-1 uppercase tracking-wide">
-                                            <span class="w-1 h-1 bg-green-600 rounded-full"></span> Open
-                                        </span>
+                                        
+                                        <?php if ($program['status'] === 'open'): ?>
+                                            <span class="px-2.5 py-0.5 bg-green-50 text-green-600 text-[10px] font-bold rounded-full flex items-center gap-1 uppercase tracking-wide">
+                                                <span class="w-1 h-1 bg-green-600 rounded-full"></span> Open
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="px-2.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-full flex items-center gap-1 uppercase tracking-wide">
+                                                <span class="w-1 h-1 bg-gray-400 rounded-full"></span> Closed
+                                            </span>
+                                        <?php endif; ?>
                                     </div>
                                     <p class="text-sm text-gray-500 line-clamp-1"><?php echo htmlspecialchars($program['description']); ?></p>
                                 </div>
@@ -104,10 +137,24 @@ try {
                             </div>
 
                             <div class="flex gap-3">
-                                <button class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    Close
-                                </button>
+                                <?php if ($program['status'] === 'open'): ?>
+                                    <a href="toggle-status.php?id=<?php echo $program['id']; ?>&current_status=open" 
+                                    class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Close Program
+                                    </a>
+                                <?php else: ?>
+                                    <a href="toggle-status.php?id=<?php echo $program['id']; ?>&current_status=close" 
+                                    class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 text-sm font-semibold rounded-lg hover:bg-green-100 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Open Program
+                                    </a>
+                                <?php endif; ?>
+
                                 <a href="delete-program.php?id=<?php echo $program['id']; ?>" 
                                     onclick="return confirm('Are you sure you want to delete this program and all its requirements?');"
                                     class="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-500 text-sm font-semibold rounded-lg hover:bg-slate-100 transition-colors">
@@ -122,7 +169,7 @@ try {
                 <div class="pt-4">
                     <a href="add-new-program.php" class="inline-flex items-center gap-4 px-7 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                        + Add New Program
+                        Add New Program
                     </a>
                 </div>
             </div>
