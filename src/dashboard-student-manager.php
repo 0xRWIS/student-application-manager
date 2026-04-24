@@ -2,6 +2,12 @@
 include('./header.php'); 
 include('./database.php');
 
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+
 $depts = $dbconnect->query("SELECT name FROM departments ORDER BY name ASC")->fetchAll();
 
 $students = $dbconnect->query("SELECT id, full_name, email, department_id FROM users WHERE role = 'user' ORDER BY full_name ASC")->fetchAll();

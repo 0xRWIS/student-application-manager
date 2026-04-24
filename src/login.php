@@ -17,7 +17,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (!empty($email) && !empty($password)) {
         try {
-            // 1. Check for Admin first (Matches your Demo Credentials)
             if ($email === 'admin@university.edu' && $password === 'admin123') {
                 $_SESSION['user_id'] = 0;
                 $_SESSION['user_name'] = 'System Admin';
@@ -26,13 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 exit();
             }
 
-            // 2. Check Database for Student
             $stmt = $dbconnect->prepare("SELECT * FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password'])) {
-                // Set Session Variables
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['full_name'];
                 $_SESSION['role'] = 'student';
@@ -40,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 header("Location: home.php");
                 exit();
             } else {
-                $error = "Invalid email or password.";
+                $error = "Email or Password are invalid.";
             }
         } catch (PDOException $e) {
             $error = "Database error: " . $e->getMessage();
@@ -50,9 +47,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
-
-
 
 <head>
     <meta charset="UTF-8">
@@ -73,6 +67,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <h1 class="text-3xl font-extrabold text-center mb-1 text-gray-950">Welcome Back</h1>
         <p class="text-center text-sm text-gray-600 mb-8">Student Application Management System</p>
+
+        <?php if (!empty($error)): ?>
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 flex items-center gap-2 animate-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-sm font-semibold"><?php echo $error; ?></span>
+            </div>
+        <?php endif; ?>
 
         <form action="#" method="POST" class="space-y-5">
             <div>
