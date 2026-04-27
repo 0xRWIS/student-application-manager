@@ -7,6 +7,10 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+if ($_SESSION['role'] !== 'admin') {
+    header("Location: home.php");
+    exit();
+}
 
 try {
     

@@ -7,6 +7,11 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+if ($_SESSION['role'] !== 'admin') {
+    header("Location: home.php");
+    exit();
+}
+
 try {
     $stats = [
         'total'    => $dbconnect->query("SELECT COUNT(*) FROM applications")->fetchColumn() ?: 0,
@@ -28,27 +33,36 @@ try {
 </head>
 <body class="bg-slate-50 min-h-screen">
 
-    <header class="flex items-center justify-between px-10 py-5 bg-white border-b border-gray-100">
-        <div class="flex items-center gap-4">
-            <div class="bg-purple-600 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-purple-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path d="M12 14l9-5-9-5-9 5 9 5z" />
-                    <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                </svg>
+        <header class="flex items-center justify-between px-10 py-5 bg-white border-b border-gray-100">
+            <div class="flex items-center gap-4">
+                <div class="bg-purple-600 p-2.5 rounded-xl flex items-center justify-center shadow-lg shadow-purple-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold text-gray-900 tracking-tight">Admin Dashboard</span>
+                    <span class="text-xs text-gray-400 font-medium">Application Management System</span>
+                </div>
             </div>
-            <div class="flex flex-col">
-                <span class="text-xl font-bold text-gray-900 tracking-tight">Admin Dashboard</span>
-                <span class="text-xs text-gray-400 font-medium">Application Management System</span>
-            </div>
-        </div>
 
-        <a href="logout.php" class="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span class="text-sm font-medium">Logout</span>
-        </a>
-    </header>
+            <div class="flex items-center gap-6">
+                <a href="home.php" class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 text-sm font-bold rounded-xl hover:bg-blue-100 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Student Portal View
+                </a>
+
+                <a href="logout.php" class="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span class="text-sm font-medium">Logout</span>
+                </a>
+            </div>
+        </header>
 
     <nav class="px-10 bg-white border-b border-gray-200">
         <div class="flex gap-10">
@@ -161,14 +175,57 @@ try {
                 </div>
             </div>
 
-            <div id="applications-container">
-                <div id="empty-state" class="p-20 text-center flex flex-col items-center justify-center">
-                    <div class="bg-gray-50 p-6 rounded-full mb-4">
-                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+            <div id="applications-container" class="divide-y divide-gray-50">
+    <?php
+    try {
+        $query = "SELECT a.*, d.name as dept_name, u.email 
+                  FROM applications a 
+                  JOIN departments d ON a.department_id = d.id 
+                  JOIN users u ON a.user_id = u.id 
+                  ORDER BY a.created_at DESC";
+        $all_apps = $dbconnect->query($query)->fetchAll();
+
+        if (!empty($all_apps)):
+            foreach ($all_apps as $app): 
+                $status = strtolower($app['status']);
+                $statusColor = ($status == 'approved') ? 'text-green-600 bg-green-50' : (($status == 'rejected') ? 'text-red-600 bg-red-50' : 'text-amber-600 bg-amber-50');
+            ?>
+            <div class="app-row p-6 hover:bg-gray-50/50 transition-colors flex items-center justify-between" data-status="<?php echo $status; ?>">
+                <div class="flex items-center gap-6">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-gray-900"><?php echo htmlspecialchars($app['applicant_name']); ?></span>
+                        <span class="text-xs text-gray-400"><?php echo htmlspecialchars($app['email']); ?></span>
                     </div>
-                    <p class="text-gray-400 font-medium italic">No application records found.</p>
+                    <div class="h-8 w-px bg-gray-100"></div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase">القسم</span>
+                        <span class="text-xs font-semibold text-gray-600"><?php echo htmlspecialchars($app['dept_name']); ?></span>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase <?php echo $statusColor; ?>">
+                        <?php echo $status; ?>
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <a href="view-applications.php?id=<?php echo $app['id']; ?>" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all" title="عرض التفاصيل">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </a>
+
+                    <?php if ($status === 'pending'): ?>
+                        <a href="update-status.php?id=<?php echo $app['id']; ?>&action=approved" class="px-4 py-2 bg-green-500 text-white text-xs font-bold rounded-lg hover:bg-green-600 shadow-sm transition-all">قبول</a>
+                        <a href="update-status.php?id=<?php echo $app['id']; ?>&action=rejected" class="px-4 py-2 bg-red-500 text-white text-xs font-bold rounded-lg hover:bg-red-600 shadow-sm transition-all">رفض</a>
+                    <?php endif; ?>
                 </div>
             </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div id="empty-state" class="p-20 text-center flex flex-col items-center justify-center">
+                <p class="text-gray-400 font-medium italic">لا توجد سجلات حالياً.</p>
+            </div>
+        <?php endif;
+    } catch (PDOException $e) { echo "Error: " . $e->getMessage(); }
+    ?>
+</div>
         </div>
     </main>
 

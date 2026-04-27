@@ -1,13 +1,23 @@
-<?php session_start();?>
+<?php session_start();
 
 
-<?php
+include('./database.php'); // Ensure this path is correct for your database connection file
+
 if (isset($_SESSION['user_id'])) {
-    echo "<pre>";
-    print_r($_SESSION); 
-    echo "</pre>";
-} else {
-    echo "User is not logged in.";
+    try {
+        // Fetch the latest role and name from the database
+        $stmt = $dbconnect->prepare("SELECT role, full_name FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $latestUser = $stmt->fetch();
+
+        if ($latestUser) {
+            // Update the session with the actual values from the DB
+            $_SESSION['role'] = $latestUser['role'];
+            $_SESSION['user_name'] = $latestUser['full_name'];
+        }
+    } catch (PDOException $e) {
+        // Silent error or handle as needed
+    }
 }
 ?>
 
