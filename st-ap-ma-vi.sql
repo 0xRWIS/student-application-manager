@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 30, 2026 at 08:04 PM
+-- Generation Time: May 23, 2026 at 05:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -29,11 +29,39 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `applications` (
   `id` int(11) NOT NULL,
-  `student_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `department_id` int(11) NOT NULL,
   `status` enum('pending','approved','rejected') DEFAULT 'pending',
-  `apply_date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `approved_by` int(11) DEFAULT NULL
+  `applicant_name` varchar(255) DEFAULT NULL,
+  `nationality` varchar(100) DEFAULT NULL,
+  `religion` varchar(100) DEFAULT NULL,
+  `residence_address` text DEFAULT NULL,
+  `home_phone` varchar(30) DEFAULT NULL,
+  `mobile_phone` varchar(30) DEFAULT NULL,
+  `guardian_name` varchar(255) DEFAULT NULL,
+  `guardian_occupation` varchar(255) DEFAULT NULL,
+  `guardian_address` text DEFAULT NULL,
+  `guardian_mobile` varchar(30) DEFAULT NULL,
+  `birth_date` date DEFAULT NULL,
+  `age` int(11) DEFAULT NULL,
+  `national_id` varchar(50) DEFAULT NULL,
+  `passport_number` varchar(50) DEFAULT NULL,
+  `id_issue_place` varchar(255) DEFAULT NULL,
+  `id_issue_date` date DEFAULT NULL,
+  `military_service_card_number` varchar(50) DEFAULT NULL,
+  `previous_certificate` varchar(255) DEFAULT NULL,
+  `graduation_year` year(4) DEFAULT NULL,
+  `total_score` decimal(6,2) DEFAULT NULL,
+  `grade` varchar(50) DEFAULT NULL,
+  `seat_number` varchar(50) DEFAULT NULL,
+  `first_foreign_language` varchar(100) DEFAULT NULL,
+  `second_foreign_language` varchar(100) DEFAULT NULL,
+  `high_school_name` varchar(255) DEFAULT NULL,
+  `educational_region` varchar(255) DEFAULT NULL,
+  `governorate` varchar(255) DEFAULT NULL,
+  `student_signature` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -45,6 +73,7 @@ CREATE TABLE `applications` (
 CREATE TABLE `departments` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
+  `status` enum('open','close') DEFAULT 'open',
   `description` text DEFAULT NULL,
   `deadline` date DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -88,9 +117,8 @@ CREATE TABLE `users` (
 --
 ALTER TABLE `applications`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_app_student` (`student_id`),
-  ADD KEY `fk_app_department` (`department_id`),
-  ADD KEY `fk_app_approved_by` (`approved_by`);
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `department_id` (`department_id`);
 
 --
 -- Indexes for table `departments`
@@ -149,9 +177,8 @@ ALTER TABLE `users`
 -- Constraints for table `applications`
 --
 ALTER TABLE `applications`
-  ADD CONSTRAINT `fk_app_approved_by` FOREIGN KEY (`approved_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_app_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_app_student` FOREIGN KEY (`student_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `applications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `applications_ibfk_2` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `department_requirements`
