@@ -124,6 +124,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </main>
 
-    <div class="fixed bottom-3 right-3 p-1 bg-black text-white rounded-full text-lg cursor-help">?</div>
+
 </body>
 </html>
