@@ -1,6 +1,7 @@
 
 <?php 
 // 1. DATABASE & LOGIC FIRST
+include('./header.php');
 include('./database.php'); 
 
 // Check if user is already logged in
@@ -54,9 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body class="bg-blue-50 font-sans text-gray-900 flex flex-col min-h-screen">
-    
-    <?php include('./header.php'); ?>
-
+     
     <main class="flex-grow flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
             

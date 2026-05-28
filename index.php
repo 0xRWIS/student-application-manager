@@ -1,6 +1,21 @@
 <?php
-include('./src/database.php');
+include('./src/header.php');
 
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['full_name']); // Make sure this matches the exact key you set on login.php
+$firstName = '';
+
+if ($isLoggedIn) {
+    // Trim accidental extra leading/trailing spaces first
+    $fullName = trim($_SESSION['full_name']); 
+    
+    // Split the name string by spaces
+    $nameParts = explode(' ', $fullName);
+    
+    // Grab the very first part of the array
+    $firstName = $nameParts[0]; 
+}
 
 $query = "SELECT 
             d.id, 
@@ -51,9 +66,18 @@ try {
             <a href="#contact" class="hover:text-indigo-600">Contact</a>
         </div>
         <div class="flex gap-4 items-center">
-            <a href="./src/login.php" class="text-sm font-semibold text-gray-700">Login</a>
-            <a href="./src/register.php" class="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all">Register</a>
+    <?php if ($isLoggedIn): ?>
+        <div class="flex items-center gap-4">
+            <span class="text-sm font-medium text-slate-700 bg-slate-100 px-4 py-2 rounded-xl">
+                Welcome, <strong class="text-indigo-600"><?php echo htmlspecialchars($firstName); ?></strong>!
+            </span>
+            <a href="./src/logout.php" class="text-sm font-semibold text-red-500 hover:text-red-700 transition-colors">Logout</a>
         </div>
+    <?php else: ?>
+        <a href="./src/login.php" class="text-sm font-semibold text-gray-700">Login</a>
+        <a href="./src/register.php" class="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all">Register</a>
+    <?php endif; ?>
+</div>
     </nav>
 
     <header class="relative px-12 py-20 flex flex-col md:flex-row items-center justify-between gap-12">
