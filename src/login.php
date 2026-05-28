@@ -104,12 +104,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p>Don't have an account? <a href="register.php" class="text-blue-600 font-medium hover:underline">Register here</a></p>
         </div>
 
-        <div class="mt-10 bg-gray-50 border border-gray-100 p-5 rounded-xl space-y-2 text-xs text-gray-500">
-            <p class="font-medium text-gray-700">Demo Credentials:</p>
-            <p>Admin: admin@university.edu / admin123</p>
-            <p>Student: any email / 6+ characters</p>
-        </div>
-
     </div>
 </main>
 
