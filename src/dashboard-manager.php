@@ -52,6 +52,7 @@ try {
                     Student Portal View
                 </a>
 
+                
                 <a href="logout.php" class="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -62,44 +63,22 @@ try {
     </header>
 
     <nav class="px-10 bg-white border-b border-gray-200">
-    <div class="flex gap-10">
-        <?php 
-            $current_page = basename($_SERVER['PHP_SELF']); 
-        ?>
-
-        <?php if ($current_page == 'dashboard.php'): ?>
-            <div class="flex items-center gap-2 py-4 border-b-2 border-purple-600 text-purple-600 font-semibold text-sm cursor-default">
-                Student Applications
-            </div>
-        <?php else: ?>
-            <a href="dashboard.php" class="flex items-center gap-2 py-4 border-b-2 border-transparent text-gray-400 font-medium text-sm hover:text-gray-600 transition-all">
+        <div class="flex gap-10">
+            <?php $current_page = basename($_SERVER['PHP_SELF']); ?>
+            <a href="dashboard.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
                 Student Applications
             </a>
-            
-            
-        <?php endif; ?>
-
-        <?php if ($current_page == 'dashboard-manager.php'): ?>
-            <div class="flex items-center gap-2 py-4 border-b-2 border-purple-600 text-purple-600 font-semibold text-sm cursor-default">
-                Manage Programs
-            </div>
-        <?php else: ?>
-            <a href="dashboard-manager.php" class="flex items-center gap-2 py-4 border-b-2 border-transparent text-gray-400 font-medium text-sm hover:text-gray-600 transition-all">
+            <a href="dashboard-manager.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard-manager.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
                 Manage Programs
             </a>
-        <?php endif; ?>
-        
-            <?php if ($current_page == 'dashboard-student-manager.php'): ?>
-            <div class="flex items-center gap-2 py-4 border-b-2 border-purple-600 text-purple-600 font-semibold text-sm cursor-default">
-                Students Manager
-            </div>
-        <?php else: ?>
-            <a href="dashboard-student-manager.php" class="flex items-center gap-2 py-4 border-b-2 border-transparent text-gray-400 font-medium text-sm hover:text-gray-600 transition-all">
+            <a href="dashboard-student-manager.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard-student-manager.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
                 Students Manager
             </a>
-        <?php endif; ?>
-    </div>
-</nav>
+            <a href="military-manager.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'military-manager.php') ? 'border-amber-600 text-amber-600 font-bold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
+                Military Registration
+            </a>
+        </div>
+    </nav>
 
     <main class="px-10 py-8">
         <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">

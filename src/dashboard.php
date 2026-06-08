@@ -76,6 +76,9 @@ try {
             <a href="dashboard-student-manager.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'dashboard-student-manager.php') ? 'border-purple-600 text-purple-600 font-semibold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
                 Students Manager
             </a>
+            <a href="military-manager.php" class="flex items-center gap-2 py-4 border-b-2 <?php echo ($current_page == 'military-manager.php') ? 'border-amber-600 text-amber-600 font-bold' : 'border-transparent text-gray-400 font-medium hover:text-gray-600'; ?> text-sm transition-all">
+                Military Registration
+            </a>
         </div>
     </nav>
 
