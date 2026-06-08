@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 23, 2026 at 05:06 PM
+-- Generation Time: Jun 08, 2026 at 09:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -94,6 +94,21 @@ CREATE TABLE `department_requirements` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `military_applications`
+--
+
+CREATE TABLE `military_applications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `applicant_name` varchar(255) NOT NULL,
+  `national_id` varchar(50) NOT NULL,
+  `course_number` varchar(50) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -134,6 +149,13 @@ ALTER TABLE `department_requirements`
   ADD KEY `fk_req_department` (`department_id`);
 
 --
+-- Indexes for table `military_applications`
+--
+ALTER TABLE `military_applications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -164,6 +186,12 @@ ALTER TABLE `department_requirements`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `military_applications`
+--
+ALTER TABLE `military_applications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -185,6 +213,12 @@ ALTER TABLE `applications`
 --
 ALTER TABLE `department_requirements`
   ADD CONSTRAINT `fk_req_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `military_applications`
+--
+ALTER TABLE `military_applications`
+  ADD CONSTRAINT `military_applications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `users`
