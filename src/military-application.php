@@ -1,3 +1,8 @@
+بناءً على طلبك، قمت بتعديل الكود وحذف عمود وحالة الـ `status` تماماً من جملة الحفظ (`INSERT`) ومن مصفوفة البيانات الممررة لها، ليتوافق تماماً مع التحديث الجديد لقاعدة البيانات الخاصة بك.
+
+إليك الكود المحدث لملف **`military-application.php`**:
+
+```php
 <?php
 session_start();
 include('database.php');
@@ -41,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_msg = "الرجاء إدخال رقم قومي صحيح مكون من 14 رقماً.";
     } else {
         try {
-            // إدخال الطلب في جدول التربية العسكرية
-            $stmtInsert = $dbconnect->prepare("INSERT INTO military_applications (user_id, applicant_name, national_id, course_number, status) VALUES (?, ?, ?, ?, 'pending')");
+            // إدخال الطلب في جدول التربية العسكرية (تم إزالة حقل الـ status من هنا)
+            $stmtInsert = $dbconnect->prepare("INSERT INTO military_applications (user_id, applicant_name, national_id, course_number) VALUES (?, ?, ?, ?)");
             $stmtInsert->execute([$user_id, $applicant_name, $national_id, $course_number]);
             
             $success_msg = "تم تسجيل طلبك في دورة التربية العسكرية رقم ($course_number) بنجاح!";
@@ -140,3 +145,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </body>
 </html>
+
+```
