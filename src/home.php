@@ -7,11 +7,22 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$user_id = $_SESSION['user_id'];
+
 try {
     $stmt = $dbconnect->query("SELECT * FROM departments ORDER BY id DESC");
     $programs = $stmt->fetchAll();
 } catch (PDOException $e) {
     die("Error: " . $e->getMessage());
+}
+
+// فحص ما إذا كان الطالب قد قدم بالفعل في التربية العسكرية لمنع التكرار هناك أيضًا
+try {
+    $stmtMilCheck = $dbconnect->prepare("SELECT COUNT(*) FROM military_applications WHERE user_id = ?");
+    $stmtMilCheck->execute([$user_id]);
+    $already_applied_military = $stmtMilCheck->fetchColumn() > 0;
+} catch (PDOException $e) {
+    $already_applied_military = false;
 }
 ?>
 
@@ -126,77 +137,108 @@ try {
                     </ul>
                 </div>
 
-                <a href="military-application.php" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-all text-center shadow-lg shadow-amber-100 active:scale-[0.98]">
-                    تسجيل في الدورة
-                </a>
+                <?php if ($already_applied_military): ?>
+                    <button disabled 
+                    class="w-full py-3.5 bg-amber-50 text-amber-700 font-bold rounded-xl cursor-not-allowed text-center border border-amber-200 shadow-none flex items-center justify-center gap-2" dir="rtl">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                        </svg>
+                        لقد قمت بالتقديم مسبقاً
+                    </button>
+                <?php else: ?>
+                    <a href="military-application.php" class="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl transition-all text-center shadow-lg shadow-amber-100 active:scale-[0.98]">
+                        تسجيل في الدورة
+                    </a>
+                <?php endif; ?>
             </div>
 
         
             <?php foreach ($programs as $program): ?>
-    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full relative overflow-hidden">
-        
-        <div class="flex justify-between items-start mb-6">
-            <div class="bg-blue-50 p-2 rounded-lg text-blue-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            </div>
-            
-            <?php if ($program['status'] === 'open'): ?>
-                <span class="px-3 py-1 bg-green-50 text-green-600 text-[11px] font-bold rounded-full border border-green-100 uppercase tracking-wider">
-                    Open
-                </span>
-            <?php else: ?>
-                <span class="px-3 py-1 bg-red-50 text-red-600 text-[11px] font-bold rounded-full border border-red-100 uppercase tracking-wider">
-                    Closed
-                </span>
-            <?php endif; ?>
-        </div>
-
-        <h3 class="text-xl font-bold text-gray-900 mb-3"><?php echo htmlspecialchars($program['name']); ?></h3>
-        <p class="text-sm text-gray-500 mb-5 leading-relaxed flex-grow">
-            <?php echo htmlspecialchars($program['description']); ?>
-        </p>
-
-        <div class="flex items-center gap-2 text-sm text-gray-500 mb-6 font-medium">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-            Deadline: <?php echo date('n/j/Y', strtotime($program['deadline'])); ?>
-        </div>
-
-        <div class="mb-8">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Requirements:</p>
-            <ul class="space-y-2">
                 <?php
-                $stmtReq = $dbconnect->prepare("SELECT requirement FROM department_requirements WHERE department_id = ? LIMIT 3");
-                $stmtReq->execute([$program['id']]);
-                $reqs = $stmtReq->fetchAll();
-                
-                foreach ($reqs as $r): ?>
-                    <li class="text-sm text-gray-600 flex items-center gap-2">
-                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
-                        <?php echo htmlspecialchars($r['requirement']); ?>
-                    </li>
-                <?php endforeach; ?>
-                
-                <?php if (count($reqs) >= 3): ?>
-                    <li class="text-xs text-gray-400 font-medium mt-1">+ more</li>
-                <?php endif; ?>
-            </ul>
-        </div>
+                // التحقق الديناميكي لكل برنامج أكاديمي: هل قدم الطالب عليه مسبقاً؟
+                try {
+                    $stmtCheck = $dbconnect->prepare("SELECT COUNT(*) FROM applications WHERE user_id = ? AND department_id = ?");
+                    // ملاحظة: إذا كان اسم الحقل في جدول التقديمات هو department_id فتركتها هكذا، عدلها لـ program_id إذا لزم الأمر.
+                    $stmtCheck->execute([$user_id, $program['id']]);
+                    $already_applied = $stmtCheck->fetchColumn() > 0;
+                } catch (PDOException $e) {
+                    $already_applied = false;
+                }
+                ?>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col h-full relative overflow-hidden">
+                    
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="bg-blue-50 p-2 rounded-lg text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        
+                        <?php if ($program['status'] === 'open'): ?>
+                            <span class="px-3 py-1 bg-green-50 text-green-600 text-[11px] font-bold rounded-full border border-green-100 uppercase tracking-wider">
+                                Open
+                            </span>
+                        <?php else: ?>
+                            <span class="px-3 py-1 bg-red-50 text-red-600 text-[11px] font-bold rounded-full border border-red-100 uppercase tracking-wider">
+                                Closed
+                            </span>
+                        <?php endif; ?>
+                    </div>
 
-        <?php if ($program['status'] === 'open'): ?>
-            <a href="application.php?id=<?php echo $program['id']; ?>" 
-            class="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all text-center shadow-lg shadow-blue-100 active:scale-[0.98]">
-                Apply Now
-            </a>
-        <?php else: ?>
-            <button disabled 
-            class="w-full py-3.5 bg-gray-100 text-gray-400 font-bold rounded-xl cursor-not-allowed text-center border border-gray-200 shadow-none">
-                Closed
-            </button>
-        <?php endif; ?>
-    </div>
-<?php endforeach; ?>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3"><?php echo htmlspecialchars($program['name']); ?></h3>
+                    <p class="text-sm text-gray-500 mb-5 leading-relaxed flex-grow">
+                        <?php echo htmlspecialchars($program['description']); ?>
+                    </p>
+
+                    <div class="flex items-center gap-2 text-sm text-gray-500 mb-6 font-medium">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        Deadline: <?php echo date('n/j/Y', strtotime($program['deadline'])); ?>
+                    </div>
+
+                    <div class="mb-8">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Requirements:</p>
+                        <ul class="space-y-2">
+                            <?php
+                            $stmtReq = $dbconnect->prepare("SELECT requirement FROM department_requirements WHERE department_id = ? LIMIT 3");
+                            $stmtReq->execute([$program['id']]);
+                            $reqs = $stmtReq->fetchAll();
+                            
+                            foreach ($reqs as $r): ?>
+                                <li class="text-sm text-gray-600 flex items-center gap-2">
+                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                                    <?php echo htmlspecialchars($r['requirement']); ?>
+                                </li>
+                            <?php endforeach; ?>
+                            
+                            <?php if (count($reqs) >= 3): ?>
+                                <li class="text-xs text-gray-400 font-medium mt-1">+ more</li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+
+                    <?php if ($already_applied): ?>
+                        <button disabled 
+                        class="w-full py-3.5 bg-amber-50 text-amber-700 font-bold rounded-xl cursor-not-allowed text-center border border-amber-200 shadow-none flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                            </svg>
+                            Applied
+                        </button>
+
+                    <?php elseif ($program['status'] === 'open'): ?>
+                        <a href="application.php?id=<?php echo $program['id']; ?>" 
+                        class="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all text-center shadow-lg shadow-blue-100 active:scale-[0.98] block">
+                            Apply Now
+                        </a>
+
+                    <?php else: ?>
+                        <button disabled 
+                        class="w-full py-3.5 bg-gray-100 text-gray-400 font-bold rounded-xl cursor-not-allowed text-center border border-gray-200 shadow-none">
+                            Closed
+                        </button>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
         </div>
     </main>
 

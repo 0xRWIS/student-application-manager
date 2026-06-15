@@ -28,7 +28,7 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
         $stmt->execute([$id]);
 
         // إعادة التوجيه إلى صفحة إدارة التربية العسكرية مع إشعار بالنجاح
-        header("Location: dashboard-military.php");
+        header("Location: military-manager.php");
         exit();
         
     } catch (PDOException $e) {
